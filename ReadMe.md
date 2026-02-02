@@ -16,6 +16,7 @@
     Dans l'emplacement <Chemin_d'import>/projet-conteneurisation/appscore, lancer : kubectl apply -f ingress-controller.yaml -n ingress-nginx
 
   Installer le gestionnaire de paquets kubernetes-helm : 
+  
        (Windows) -> choco install kubernetes-helm 
 	   
        (Linux)   -> sudo apt-get install curl gpg apt-transport-https --yes
