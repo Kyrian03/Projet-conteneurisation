@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Values.global.security.networkpolicy.name }}
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Values.global.sqldata.name }}
+  policyTypes:
+  - {{ .Values.global.security.networkpolicy.type }}
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: {{ .Values.global.apijobs.name }}
+    - podSelector:
+        matchLabels:
+          app: {{ .Values.global.apiidentity.name }}
+    - podSelector:
+        matchLabels:
+          app: {{ .Values.global.applicantsapi.name }}
+    ports:
+    - protocol: TCP
+      port: {{ .Values.global.security.networkpolicy.port }}

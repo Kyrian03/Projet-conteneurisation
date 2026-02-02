@@ -1,0 +1,30 @@
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.global.ingress.monitoring.name }}
+  namespace: {{ .Values.global.ingress.monitoring.namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: {{ .Values.global.ingress.monitoring.host1.name }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.global.ingress.monitoring.host1.service }}
+            port:
+              number: {{ .Values.global.ingress.monitoring.host1.port }}
+  - host: {{ .Values.global.ingress.monitoring.host2.name }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.global.ingress.monitoring.host2.service }}
+            port:
+              number: {{ .Values.global.ingress.monitoring.host2.port }}

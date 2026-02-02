@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.webapp.deployment }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.global.webapp.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.webapp.name }}
+    spec:
+      serviceAccountName: {{ .Values.global.webapp.account }} 
+      containers:
+        - name: {{ .Values.global.webapp.name }}
+          image: web
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+
+          # --- DÉBUT DES SONDES (BILAN DE SANTÉ) ---
+          livenessProbe:
+            httpGet:
+              path: /     
+              port: {{ .Values.global.webapp.port }}
+            initialDelaySeconds: 10  
+            periodSeconds: 15       
+          
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.global.webapp.port }}
+            initialDelaySeconds: 5   
+            periodSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /     
+              port: {{ .Values.global.webapp.port }}
+            initialDelaySeconds: 50  
+            periodSeconds: 15  
+          # --- FIN DES SONDES ---
+
+          resources: 
+            requests:
+              cpu: 4m
+              memory: 900Mi
+            limits:
+              cpu: 1
+              memory: 2000Mi
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{ .Values.global.apijobs.name }} 
+                      - {{ .Values.global.applicantsapi.name }} 
+              topologyKey: "kubernetes.io/hostname"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.webapp.service }}
+spec:
+  selector:
+    app: {{ .Values.global.webapp.name }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.global.webapp.port }}
+      targetPort: {{ .Values.global.webapp.port }}
+    # type: NodePort
+  type: ClusterIP

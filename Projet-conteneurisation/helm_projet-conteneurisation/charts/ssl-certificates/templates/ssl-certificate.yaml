@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.global.sslcert.name }}
+type: kubernetes.io/tls
+data:
+  {{- $cert := genSelfSignedCert ".Values.global.webapp.url" (list "127.0.0.1") (list "webapp.local") 365 }}
+  tls.crt: |
+    {{ $cert.Cert | b64enc }}
+  tls.key: |
+    {{ $cert.Key | b64enc }}

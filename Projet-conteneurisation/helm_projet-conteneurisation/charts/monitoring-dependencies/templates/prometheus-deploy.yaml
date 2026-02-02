@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.prometheus.deployment }}
+  namespace: {{ .Values.global.ingress.monitoring.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.global.prometheus.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.prometheus.name }}
+    spec:
+      serviceAccountName: {{ .Values.global.prometheus.account }}
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.45.0
+        args:
+          - "--config.file=/etc/prometheus/prometheus.yml"
+          - "--storage.tsdb.path=/prometheus/"
+        ports:
+        - containerPort: {{ .Values.global.prometheus.port2 }}
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/prometheus/prometheus.yml
+            subPath: prometheus.yml
+          - name: rules-volume
+            mountPath: /etc/prometheus/rules/
+      volumes:
+        - name: config-volume
+          configMap:
+            name: prometheus-config
+        - name: rules-volume
+          configMap:
+            name: prometheus-rules
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.prometheus.service }}
+  namespace: {{ .Values.global.ingress.monitoring.namespace }}
+spec:
+  selector:
+    app: {{ .Values.global.prometheus.name }}
+  ports:
+    - port: {{ .Values.global.prometheus.port1 }}
+      targetPort: {{ .Values.global.prometheus.port2 }}
+  type: ClusterIP

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.kibana.deployment }}
+  namespace: {{ .Values.global.ingress.logging.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.global.kibana.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.kibana.name }}
+    spec:
+      containers:
+      - name: kibana
+        image: docker.elastic.co/kibana/kibana:7.17.0
+        env:
+        - name: ELASTICSEARCH_HOSTS
+          value: "http://elasticsearch:9200"
+        ports:
+        - containerPort: {{ .Values.global.kibana.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.kibana.service }}
+  namespace: {{ .Values.global.ingress.logging.namespace }}
+spec:
+  selector:
+    app: {{ .Values.global.kibana.name }}
+  ports:
+    - port: {{ .Values.global.kibana.port }}
+      targetPort: {{ .Values.global.kibana.port }}

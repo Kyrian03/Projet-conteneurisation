@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.apiidentity.deployment }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.global.apiidentity.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.apiidentity.name }}
+    spec:
+      containers:
+        - name: service-api-identity
+          image: service-api-identity
+          imagePullPolicy: Never
+          ports:
+            - containerPort: {{ .Values.global.apiidentity.port }}
+          env:
+            - name: RedisHost
+              value: "user-data:6379"
+            - name: HostRabbitmq
+              value: "rabbitmq"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 500Mi
+            limits:
+              cpu: 1
+              memory: 1500Mi
+
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{ .Values.global.userdata.name }}
+              topologyKey: "kubernetes.io/hostname"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.apiidentity.service }}
+spec:
+  selector:
+    app: {{ .Values.global.apiidentity.name }}
+  ports:
+    - port: {{ .Values.global.apiidentity.port }}
+      targetPort: {{ .Values.global.apiidentity.port }}

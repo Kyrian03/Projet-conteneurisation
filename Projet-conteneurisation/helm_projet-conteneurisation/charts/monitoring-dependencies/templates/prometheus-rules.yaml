@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.global.prometheus.config }}
+  namespace: {{ .Values.global.ingress.monitoring.namespace }}
+data:
+  alert_rules.yml: |
+    groups:
+      - name: cluster_health
+        rules:
+          # Alerte : Un Pod ne répond plus
+          - alert: PodDown
+            expr: kube_pod_status_ready{condition="true"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Alerte Santé : Pod HS"
+              description: "Le pod {{ "{{" }} $labels.pod {{ "}}" }} est KO depuis plus de 1 minute."
+
+          # Alerte : Un Pod consomme trop de RAM (> 500Mo par ex)
+          - alert: HighMemoryUsage
+            expr: container_memory_usage_bytes{pod!=""} > 500000000
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Alerte Ressources : RAM élevée"
+              description: "Le pod {{ "{{" }} $labels.pod {{ "}}" }} consomme plus de 500Mo de RAM."

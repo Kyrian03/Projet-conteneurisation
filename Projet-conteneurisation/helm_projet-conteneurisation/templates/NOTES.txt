@@ -1,0 +1,3 @@
+Le deploiement prend environ 10 minutes. 
+
+Acceder a l'application via : https://{{ .Values.global.webapp.url}}

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.rabbitmq.deployment }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.global.rabbitmq.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.rabbitmq.name }}
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3-management
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.global.rabbitmq.port1 }}
+            - containerPort: {{ .Values.global.rabbitmq.port2 }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.rabbitmq.service }}
+spec:
+  selector:
+    app: {{ .Values.global.rabbitmq.name }}
+  ports:
+    - name: amqp
+      protocol: TCP
+      port: {{ .Values.global.rabbitmq.port1 }}
+      targetPort: {{ .Values.global.rabbitmq.port1 }}
+    - name: management
+      protocol: TCP
+      port: {{ .Values.global.rabbitmq.port2 }}
+      targetPort: {{ .Values.global.rabbitmq.port2 }}
+  type: ClusterIP

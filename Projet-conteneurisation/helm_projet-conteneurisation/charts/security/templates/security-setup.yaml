@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.global.webapp.account }}
+  namespace: default
+---
+# Identité microservice
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.global.security.rbac.reader }}
+  namespace: default
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+---
+# Droits accordés au microservice
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.global.security.rbac.binding }}
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name:  {{ .Values.global.webapp.account }}
+  namespace: default
+roleRef:
+  kind: Role
+  name:  {{ .Values.global.security.rbac.reader }}
+  apiGroup: rbac.authorization.k8s.io

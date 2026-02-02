@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.apijobs.deployment }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.global.apijobs.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.apijobs.name }}
+    spec:
+      containers:
+        - name: service-api-jobs
+          image: service-api-jobs
+          imagePullPolicy: Never
+          ports:
+            - containerPort: {{ .Values.global.apijobs.port }}
+          env:
+            - name: ConnectionString
+              value: "Server=sql-data;User=sa;Password=Pass@word;Database=dotnetgigs.jobs;"
+            - name: HostRabbitmq
+              value: "rabbitmq"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 500Mi
+            limits:
+              cpu: 1
+              memory: 1500Mi
+
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{ .Values.global.sqldata.name }}
+              topologyKey: "kubernetes.io/hostname"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.apijobs.service }}
+spec:
+  selector:
+    app: {{ .Values.global.apijobs.name }}
+  ports:
+    - port: {{ .Values.global.apijobs.port }}
+      targetPort: {{ .Values.global.apijobs.port }}

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/instance: {{ .Values.global.ingress.namespace }}
+    app.kubernetes.io/name: {{ .Values.global.ingress.namespace }}
+  name: {{ .Values.global.ingress.namespace }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.global.ingress.logging.namespace }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.global.ingress.monitoring.namespace }}
+---

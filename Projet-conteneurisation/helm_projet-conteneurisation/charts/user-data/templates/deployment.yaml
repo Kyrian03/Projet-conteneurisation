@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.userdata.deployment }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.global.userdata.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.userdata.name }}
+    spec:
+      containers:
+        - name: user-data
+          image: redis:8.4.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.global.userdata.port }}
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.userdata.service }}
+spec:
+  selector:
+    app: {{ .Values.global.userdata.name }}
+  ports:
+    - port: {{ .Values.global.userdata.port }}
+      targetPort: {{ .Values.global.userdata.port }}

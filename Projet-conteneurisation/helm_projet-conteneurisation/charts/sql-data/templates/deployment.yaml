@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.sqldata.deployment }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.global.sqldata.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.sqldata.name }}
+    spec:
+      containers:
+        - name: sql-data
+          image: mssql-linux:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: {{ .Values.global.sqldata.port }}
+          volumeMounts:
+            - mountPath: /var/opt/mssql
+              name: {{ .Values.global.sqldata.pvc }}
+          resources:
+            requests:
+              cpu: 4m
+              memory: 500Mi
+            limits:
+              cpu: 1
+              memory: 1500Mi
+      volumes:
+        - name: {{ .Values.global.sqldata.pvc }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.sqldata.pvc }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.sqldata.service }}
+spec:
+  selector:
+    app: {{ .Values.global.sqldata.name }}
+  ports:
+    - port: {{ .Values.global.sqldata.port }}
+      targetPort: {{ .Values.global.sqldata.port }}

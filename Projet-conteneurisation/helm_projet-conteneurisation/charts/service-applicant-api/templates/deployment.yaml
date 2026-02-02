@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.applicantsapi.deployment }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.global.applicantsapi.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.applicantsapi.name }}
+    spec:
+      containers:
+        - name: applicants-api
+          image: applicants-api
+          imagePullPolicy: Never
+          ports:
+            - containerPort: {{ .Values.global.applicantsapi.port }}
+          env:
+            - name: ConnectionString
+              value: "Server=sql-data;User=sa;Password=Pass@word;Database=dotnetgigs.applicants;"
+            - name: HostRabbitmq
+              value: "rabbitmq"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 500Mi
+            limits:
+              cpu: 1
+              memory: 1500Mi
+
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{ .Values.global.sqldata.name }}
+              topologyKey: "kubernetes.io/hostname"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.applicantsapi.service }}
+spec:
+  selector:
+    app: {{ .Values.global.applicantsapi.name }}
+  ports:
+    - port: {{ .Values.global.applicantsapi.port }}
+      targetPort: {{ .Values.global.applicantsapi.port }}

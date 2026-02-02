@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.global.security.fluentd.rbac.account }}
+  namespace: {{ .Values.global.ingress.logging.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.global.security.fluentd.rbac.account }}
+rules:
+- apiGroups: [""]
+  resources: ["pods", "namespaces"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Values.global.security.fluentd.rbac.account }}
+roleRef:
+  kind: ClusterRole
+  name: {{ .Values.global.security.fluentd.rbac.account }}
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.global.security.fluentd.rbac.account }}
+  namespace: {{ .Values.global.ingress.logging.namespace }}
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Values.global.security.fluentd.rbac.account }}
+  namespace: {{ .Values.global.ingress.logging.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.global.security.fluentd.rbac.account }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.security.fluentd.rbac.account }}
+    spec:
+      serviceAccountName: {{ .Values.global.security.fluentd.rbac.account }}
+      containers:
+      - name: fluentd
+        image: fluent/fluentd-kubernetes-daemonset:v1-debian-elasticsearch
+        env:
+          - name:  FLUENT_ELASTICSEARCH_HOST
+            value: "elasticsearch.logging.svc.cluster.local"
+          - name:  FLUENT_ELASTICSEARCH_PORT
+            value: "9200"
+          - name:  FLUENT_ELASTICSEARCH_SCHEME
+            value: "http"
+          - name: FLUENT_UID
+            value: "0"
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
