@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.global.kibana.deployment }}
-  namespace: {{ .Values.global.ingress.logging.namespace }}
+  namespace: {{ .Values.global.logging.namespace }}
 spec:
   replicas: 1
   selector:
@@ -14,7 +14,7 @@ spec:
         app: {{ .Values.global.kibana.name }}
     spec:
       containers:
-      - name: kibana
+      - name: {{ .Values.global.kibana.name }}
         image: docker.elastic.co/kibana/kibana:7.17.0
         env:
         - name: ELASTICSEARCH_HOSTS
@@ -26,7 +26,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.global.kibana.service }}
-  namespace: {{ .Values.global.ingress.logging.namespace }}
+  namespace: {{ .Values.global.logging.namespace }}
 spec:
   selector:
     app: {{ .Values.global.kibana.name }}

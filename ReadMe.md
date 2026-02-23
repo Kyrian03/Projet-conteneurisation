@@ -1,20 +1,8 @@
 - Comment builder les images :
-  Dans l'emplacement <Chemin_d'import>/projet-conteneurisation/appscore, executer le fichier docker-compose.yaml par la commande : docker compose build -f docker-compose.yaml
+  Dans l'emplacement <Chemin_d'import>/projet-conteneurisation/appscore, executer le fichier docker-compose.yaml par la commande : docker-compose build 
   Dans l'emplacement <Chemin_d'import>/projet-conteneurisation/appscore, executer le fichier Dockerfile-fluentd par la commande : docker build -f Dockerfile-fluentd
   
 - Comment déployer le projet sur un cluster vierge
-  Avec la commande : kubectl create namespace <namespace>
-  Creer les namespaces : 
-       -> logging
-       -> monitoring    
-       -> ingress-nginx (pour la creation de l'ingress-controller)
-	   
-  Creer le certificat https pour le service web :
-    Dans l'emplacement <Chemin_d'import>/projet-conteneurisation/appscore, lancer : kubectl create secret tls web-tls --cert=web.crt --key=web.key
-
-  Creer l'ingress-controller : 
-    Dans l'emplacement <Chemin_d'import>/projet-conteneurisation/appscore, lancer : kubectl apply -f ingress-controller.yaml -n ingress-nginx
-
   Installer le gestionnaire de paquets kubernetes-helm : 
   
        (Windows) -> choco install kubernetes-helm 
@@ -33,7 +21,7 @@
 
 
 - Comment accéder aux différentes applications (URL, ports, ingress)
-  Taper dans un navigateur web l'url : https//webapp.local (port 443 implicite, qui sera redirigée par l'ingress vers les differents services)
+  Taper dans un navigateur web l'url : https//webapp.local, https//prometheus.local, https//kibana.local (port 443 implicite, qui sera redirigée par l'ingress vers les differents services)
 	
 	
 - Comment vérifier l’état du cluster (commandes kubectl, dashboards…)

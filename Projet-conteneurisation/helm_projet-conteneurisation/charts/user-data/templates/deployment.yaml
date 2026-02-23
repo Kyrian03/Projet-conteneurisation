@@ -23,8 +23,12 @@ spec:
               cpu: 50m
               memory: 256Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 500m #500m reduit a 250 pour mon pc qui manque de puissance
+              memory: 400Mi #512Mi reduit a 400 pour mon pc qui manque de puissance
+      volumes:
+        - name: {{ .Values.global.userdata.pvc }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.userdata.pvc }}
 ---
 apiVersion: v1
 kind: Service

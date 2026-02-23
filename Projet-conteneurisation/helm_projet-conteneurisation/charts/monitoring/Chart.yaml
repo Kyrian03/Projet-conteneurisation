@@ -1,6 +1,7 @@
 apiVersion: v2
-name: web-ingress
-description: chart de deploiement du web ingress
+name: monitoring
+description: chart de deploiement du monitoring
+ 
 
 # A chart can be either an 'application' or a 'library' chart.
 #

@@ -3,18 +3,20 @@ kind: Ingress
 metadata:
   name: {{ .Values.global.ingress.webapp.name }}
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    #nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: / #$2
+    #nginx.ingress.kubernetes.io/app-root: /app
 spec:
   ingressClassName: nginx
   tls:
   - hosts:
     - {{ .Values.global.webapp.url }}
-    secretName: {{ .Values.global.sslcert.name }} 
+    secretName: {{ .Values.global.sslcert.webapp.name }} 
   rules:
   - host: {{ .Values.global.webapp.url }}
     http:
       paths:
-      - path: /
+      - path: / #app(/|$)(.*)
         pathType: Prefix
         backend:
           service:

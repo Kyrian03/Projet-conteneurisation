@@ -27,7 +27,7 @@ spec:
               memory: 500Mi
             limits:
               cpu: 1
-              memory: 1500Mi
+              memory: 1250Mi #1500Mi reduit a 1250 pour mon pc qui manque de puissance
       volumes:
         - name: {{ .Values.global.sqldata.pvc }}
           persistentVolumeClaim:

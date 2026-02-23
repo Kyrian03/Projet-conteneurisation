@@ -1,3 +1,6 @@
-Le deploiement prend environ 10 minutes. 
+Le déploiement prend environ 10 à 15 minutes. 
 
-Acceder a l'application via : https://{{ .Values.global.webapp.url}}
+Accéder :
+        - à l'application via          : https://{{ .Values.global.webapp.url}}
+        - au monitoring prometheus via : https://{{ .Values.global.prometheus.url}}
+        - au logging kibana via        : https://{{ .Values.global.kibana.url}}

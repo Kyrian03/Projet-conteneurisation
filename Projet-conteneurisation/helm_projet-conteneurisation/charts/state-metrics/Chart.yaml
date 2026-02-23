@@ -1,7 +1,6 @@
 apiVersion: v2
-name: logs-dependencies
-description: chart de deploiement des logs-dependencies
- 
+name: state-metrics
+description: chart de deploiement du state-metrics
 
 # A chart can be either an 'application' or a 'library' chart.
 #

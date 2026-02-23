@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.global.elasticsearch.deployment }}
-  namespace: {{ .Values.global.ingress.logging.namespace }}
+  namespace: {{ .Values.global.logging.namespace }}
 spec:
   replicas: 1
   selector:
@@ -33,10 +33,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.global.elasticsearch.service }}
-  namespace: {{ .Values.global.ingress.logging.namespace }}
+  namespace: {{ .Values.global.logging.namespace }}
 spec:
   selector:
     app: {{ .Values.global.elasticsearch.name }}
   ports:
     - port: {{ .Values.global.elasticsearch.port }}
-      targetPort: {{ .Values.global.elasticsearch.port }}
+      targetPort: {{ .Values.global.elasticsearch.servicePport }}

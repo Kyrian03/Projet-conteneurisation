@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.global.security.fluentd.rbac.account }}
-  namespace: {{ .Values.global.ingress.logging.namespace }}
+  namespace: {{ .Values.global.logging.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -24,13 +24,13 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: {{ .Values.global.security.fluentd.rbac.account }}
-  namespace: {{ .Values.global.ingress.logging.namespace }}
+  namespace: {{ .Values.global.logging.namespace }}
 ---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ .Values.global.security.fluentd.rbac.account }}
-  namespace: {{ .Values.global.ingress.logging.namespace }}
+  namespace: {{ .Values.global.logging.namespace }}
 spec:
   selector:
     matchLabels:

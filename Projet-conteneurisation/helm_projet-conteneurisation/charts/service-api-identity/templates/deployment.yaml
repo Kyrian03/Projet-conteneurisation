@@ -28,8 +28,8 @@ spec:
               cpu: 500m
               memory: 500Mi
             limits:
-              cpu: 1
-              memory: 1500Mi
+              cpu: 800m  #1 reduit a 800m pour mon pc qui manque de puissance
+              memory: 1250Mi  #1500Mi reduit a 1250 pour mon pc qui manque de puissance
 
       affinity:
         podAffinity:

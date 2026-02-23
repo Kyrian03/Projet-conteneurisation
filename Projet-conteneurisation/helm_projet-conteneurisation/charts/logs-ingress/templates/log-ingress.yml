@@ -1,17 +1,27 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name:  {{ .Values.global.ingress.logging.name }}
-  namespace: {{ .Values.global.ingress.logging.namespace }}
+  name: {{ .Values.global.ingress.logging.name }}
+  namespace: {{ .Values.global.logging.namespace }}
+  annotations:
+   # nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
+  tls:
+  - hosts: 
+    - {{ .Values.global.kibana.url }}
+    secretName: {{ .Values.global.sslcert.kibana.name }} 
   rules:
-  - host: {{ .Values.global.ingress.logging.host.name }}
+  - host: {{ .Values.global.kibana.url }}
     http:
       paths:
-      - path: /
+      - path: /  
         pathType: Prefix
         backend:
           service:
-            name: {{ .Values.global.ingress.logging.host.service }}
+            name: {{ .Values.global.kibana.service }}
             port:
-              number: {{ .Values.global.ingress.logging.host.port }}
+              number: {{ .Values.global.kibana.servicePort }}
+
+

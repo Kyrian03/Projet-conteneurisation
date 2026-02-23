@@ -25,7 +25,7 @@ spec:
               memory: 256Mi
             limits:
               cpu: 500m
-              memory: 512Mi
+              memory: 400Mi  #512Mi reduit a 400 pour mon pc qui manque de puissance
 ---
 apiVersion: v1
 kind: Service

@@ -1,8 +1,23 @@
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.global.userdata.pvc }}
+spec:
+  storageClassName: hostpath
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.global.userdata.pvpath }}
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ .Values.global.userdata.pvc }}
 spec:
+  volumeName: {{ .Values.global.userdata.pvc }}
   accessModes:
     - ReadWriteOnce
   resources:

@@ -9,10 +9,10 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ .Values.global.ingress.logging.namespace }}
+  name: {{ .Values.global.logging.namespace }}
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ .Values.global.ingress.monitoring.namespace }}
+  name: {{ .Values.global.monitoring.namespace }}
 ---

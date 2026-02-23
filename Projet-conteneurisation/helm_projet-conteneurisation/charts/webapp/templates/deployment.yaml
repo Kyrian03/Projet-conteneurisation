@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Values.global.webapp.deployment }}
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: {{ .Values.global.webapp.name }}
@@ -40,7 +41,11 @@ spec:
             initialDelaySeconds: 50  
             periodSeconds: 15  
           # --- FIN DES SONDES ---
-
+      #22022026
+          volumeMounts:
+            - mountPath: /DataProtection-Keys/
+              name: {{ .Values.global.webapp.pvc }}
+      #22022026
           resources: 
             requests:
               cpu: 4m
@@ -48,6 +53,12 @@ spec:
             limits:
               cpu: 1
               memory: 2000Mi
+      #22022026
+      volumes:
+        - name: {{ .Values.global.webapp.pvc }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.webapp.pvc }}
+      #22022026
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

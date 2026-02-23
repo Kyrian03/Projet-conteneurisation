@@ -1,0 +1,150 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.global.prometheus.account }}
+  namespace: {{ .Values.global.monitoring.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name:  {{ .Values.global.security.prometheus.rbac.metrics }}
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "nodes/proxy", "nodes/metrics", "services", "endpoints", "pods"]
+  verbs: ["get", "list", "watch"]
+- nonResourceURLs: 
+  - "/metrics"
+  - "/metrics/cadvisor"
+  - "/metrics/probes"
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name:  {{ .Values.global.security.prometheus.rbac.binding }}
+subjects:
+- kind: ServiceAccount
+  #name: {{ .Values.global.prometheus.name }}
+  #A tester
+  name: {{ .Values.global.prometheus.account }}
+  namespace:  {{ .Values.global.monitoring.namespace }}
+roleRef:
+  kind: ClusterRole
+  name:  {{ .Values.global.security.prometheus.rbac.metrics }}
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.global.prometheus.config }}
+  namespace: {{ .Values.global.monitoring.namespace }}
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+
+    rule_files:
+      - /etc/prometheus/rules/*.yml
+
+    scrape_configs:
+      - job_name: 'kube-state-metrics'
+        static_configs:
+          - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
+
+      - job_name: 'kubernetes-nodes-cadvisor'
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - target_label: __address__
+            replacement: kubernetes.default.svc:443
+          - source_labels: [__meta_kubernetes_node_name]
+            regex: (.+)
+            target_label: __metrics_path__
+            replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.global.prometheus.rules }}
+  namespace: {{ .Values.global.monitoring.namespace }}
+data:
+  alert_rules.yml: |
+    groups:
+      - name: cluster_health
+        rules:
+          # Alerte : Un Pod ne répond plus
+          - alert: PodDown
+            expr: kube_pod_status_ready{condition="true"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Alerte Santé : Pod HS"
+              description: "Le pod {{ "{{" }} $labels.pod {{ "}}" }} est KO depuis plus de 1 minute."
+
+          # Alerte : Un Pod consomme trop de RAM (> 500Mo par ex)
+          - alert: HighMemoryUsage
+            expr: container_memory_usage_bytes{pod!=""} > 500000000
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Alerte Ressources : RAM élevée"
+              description: "Le pod {{ "{{" }} $labels.pod {{ "}}" }} consomme plus de 500Mo de RAM."
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.prometheus.deployment }}
+  namespace: {{ .Values.global.monitoring.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.global.prometheus.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.prometheus.name }}
+    spec:
+      #La raison du pourquoi le pod ne se cree pas :
+      serviceAccountName: {{ .Values.global.prometheus.account }}
+      containers:
+        - name: {{ .Values.global.prometheus.name }}
+          image: prom/prometheus:v2.45.0
+          args:
+          - "--config.file=/etc/prometheus/prometheus.yml"
+          - "--storage.tsdb.path=/prometheus/"
+          ports:
+          - containerPort: {{ .Values.global.prometheus.port }}
+          volumeMounts:
+            - name: {{ .Values.global.prometheus.configvolume }}
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+            - name: {{ .Values.global.prometheus.rulesvolume }}
+              mountPath: /etc/prometheus/rules/
+      volumes:
+        - name: {{ .Values.global.prometheus.configvolume }}
+          configMap:
+            name: {{ .Values.global.prometheus.config }}
+        - name: {{ .Values.global.prometheus.rulesvolume }}
+          configMap:
+            name: {{ .Values.global.prometheus.rules }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.prometheus.service }}
+  namespace: {{ .Values.global.monitoring.namespace }}
+spec:
+  selector:
+    app: {{ .Values.global.prometheus.name }}
+  ports:
+    - port: {{ .Values.global.prometheus.servicePort }}
+      targetPort: {{ .Values.global.prometheus.port }}
+  type: ClusterIP
