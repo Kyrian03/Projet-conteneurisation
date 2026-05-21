@@ -1,5 +1,5 @@
 #===================================================
-# Déploiement garantie sous docker v2.27.2
+# Déploiement garantie sous docker v4.27.2
 #===================================================
 - Comment builder les images :
   Dans l'emplacement <Chemin_d'import>/projet-conteneurisation/appscore, executer le fichier docker-compose.yaml par la commande : docker-compose build 
