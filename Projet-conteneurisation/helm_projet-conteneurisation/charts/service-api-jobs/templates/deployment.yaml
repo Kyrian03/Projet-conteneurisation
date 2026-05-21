@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: service-api-jobs
-          image: service-api-jobs
-          imagePullPolicy: Never
+          image: localhost:5000/service-api-jobs:latest
+          imagePullPolicy: IfNotPresent   
           ports:
             - containerPort: {{ .Values.global.apijobs.port }}
           env:

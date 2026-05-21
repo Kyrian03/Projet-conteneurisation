@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: sql-data
-          image: mssql-linux:latest
-          imagePullPolicy: Never
+          image: localhost:5000/mssql-linux:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: {{ .Values.global.sqldata.port }}
           volumeMounts:

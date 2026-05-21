@@ -15,8 +15,8 @@ spec:
       serviceAccountName: {{ .Values.global.webapp.account }} 
       containers:
         - name: {{ .Values.global.webapp.name }}
-          image: web
-          imagePullPolicy: Never
+          image: localhost:5000/web:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
 

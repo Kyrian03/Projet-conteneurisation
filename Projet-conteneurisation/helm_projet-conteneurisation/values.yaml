@@ -1,0 +1,125 @@
+global:
+  webapp:
+    name: webapp
+    deployment: webapp
+    port: 80
+    url: webapp.local
+    service: webapp-service
+    hpa: web-hpa
+    account: sa-webapp
+    pvc: webapp-pv
+    pvpath: "/pv-web-app"
+    
+  applicantsapi:
+    name: applicants-api
+    deployment: applicants-api
+    port: 80
+    service: applicants-api
+
+  apijobs:
+    name: service-api-jobs
+    deployment: service-api-jobs
+    port: 80
+    service: service-api-jobs
+  
+  apiidentity:
+    name: service-api-identity
+    deployment: service-api-identity
+    port: 80
+    service: service-api-identity
+
+  userdata:
+    name: user-data
+    deployment: user-data
+    port: 6379
+    service: user-data 
+    pvc: user-data-pv
+    pvpath: "/pv-user-data"
+    
+  rabbitmq:
+    name: rabbitmq
+    deployment: rabbitmq
+    port1: 5672
+    port2: 15672
+    service: rabbitmq
+
+  ingress:
+    namespace: projet-conteneurisation-ingress-nginx
+    webapp: 
+      name: webapp-ingress
+
+    logging:
+      name: kibana-ingress
+
+    monitoring:
+      name: monitoring-ingress
+        
+  monitoring:
+    namespace: projet-conteneurisation-monitoring
+
+  logging:
+    namespace: projet-conteneurisation-logging
+
+  prometheus: 
+    config: prometheus-config
+    name: prometheus
+    service: prometheus-service
+    servicePort: 80
+    url: prometheus.local
+    deployment: prometheus-server
+    port: 9090
+    account: prometheus-sa
+    rules: prometheus-rules
+    configvolume: prometheus-config-volume
+    rulesvolume: prometheus-rules-volume
+    metricsserver:
+      name: metric-server
+      namespace: kube-system
+      k8sapp: metric-server
+
+  elasticsearch:
+    name: elasticsearch
+    deployment: elasticsearch
+    service: elasticsearch
+    port: 9200
+    servicePort: 9200
+    
+  kibana:
+    name: kibana
+    deployment: kibana
+    service: kibana
+    port: 5601
+    servicePort: 5601
+    url: kibana.local
+
+  sqldata:
+    name: sql-data
+    deployment: sql-data
+    port: 1433
+    pvc: sql-data-pv
+    pvpath: "/pv-sql-data"
+    service: sql-data
+
+  security:
+    networkpolicy: 
+      name: allow-api-to-sql
+      port: 5432
+      type: Ingress
+    prometheus:
+      rbac:
+        metrics: prometheus-system-metrics
+        binding: prometheus-system-metrics-binding
+    fluentd:
+      rbac:
+        account: fluentd
+    rbac:
+      reader: role-webapp-lecteur
+      binding: bind-webapp-role
+ 
+  sslcert: 
+    kibana:
+      name: web-tls-kibana
+    prometheus:
+      name: web-tls-prometheus
+    webapp:
+      name: web-tls-webapp

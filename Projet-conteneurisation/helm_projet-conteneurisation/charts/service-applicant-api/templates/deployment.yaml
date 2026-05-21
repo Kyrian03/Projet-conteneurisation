@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: applicants-api
-          image: applicants-api
-          imagePullPolicy: Never
+          image: localhost:5000/applicants-api:latest
+          imagePullPolicy: IfNotPresent          
           ports:
             - containerPort: {{ .Values.global.applicantsapi.port }}
           env:

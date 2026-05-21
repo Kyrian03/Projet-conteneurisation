@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: service-api-identity
-          image: service-api-identity
-          imagePullPolicy: Never
+          image: localhost:5000/service-api-identity:latest
+          imagePullPolicy: IfNotPresent 
           ports:
             - containerPort: {{ .Values.global.apiidentity.port }}
           env:
